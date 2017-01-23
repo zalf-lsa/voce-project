@@ -1,0 +1,77 @@
+{
+	"__site parameters object": "",
+  "SiteParameters": {
+    "Latitude": 52.80939865112305,
+    "Slope": 0,
+    "HeightNN": [0 , "m"],
+    "NDeposition": 30,
+		
+    "SoilProfileParameters": [
+			{
+				"Thickness": [0.15, "m"],
+				"KA5TextureClass": "Sl4",
+				"Sand": 0.6,
+				"Clay": 0.12,
+				"SoilBulkDensity": [1730, "kg m-3"],
+				"SoilOrganicCarbon": [0.47, "%"],
+				"CN": 7,
+				"pH": 7.44,
+				"Sceleton": 0.04
+			}, 
+			{
+				"Thickness": [0.11, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.6,
+				"Clay": 0.11,
+				"SoilBulkDensity": [1550, "kg m-3"],
+				"SoilOrganicCarbon": [0.54, "%"],
+				"CN": 9,
+				"pH": 7.54,
+				"Sceleton": 0.05
+			},
+			{
+				"Thickness": [0.22, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.61,
+				"Clay": 0.12,
+				"SoilBulkDensity": [1660, "kg m-3"],
+				"SoilOrganicCarbon": [0.1, "%"],
+				"CN": 7,
+				"pH": 7.66,
+				"Sceleton": 0.04
+			},
+			{
+				"Thickness": [0.37, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.61,
+				"Clay": 0.12,
+				"SoilBulkDensity": [1860, "kg m-3"],
+				"SoilOrganicCarbon": [0.02, "%"],
+				"CN": 1,
+				"pH": 7.70,
+				"Sceleton": 0.03
+			},
+			{
+				"Thickness": [1.05, "m"],
+				"KA5TextureClass": "Sl4",
+				"Sand": 0.61,
+				"Clay": 0.13,
+				"SoilBulkDensity": [1840, "kg m-3"],
+				"SoilOrganicCarbon": [0.03, "%"],
+				"CN": 2,
+				"pH": 7.70,
+				"Sceleton": 0.04
+			}
+    ]
+  },
+	
+  "SoilTemperatureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-temperature.json"],
+	"EnvironmentParameters": {
+    "DEFAULT": ["include-from-file", "monica-parameters/user-parameters/hermes-environment.json"],
+    "LeachingDepth": 2.0,
+    "WindSpeedHeight": 2.5
+  },
+  "SoilOrganicParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-organic.json"],
+  "SoilTransportParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-transport.json"],
+  "SoilMoistureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-moisture.json"]
+}

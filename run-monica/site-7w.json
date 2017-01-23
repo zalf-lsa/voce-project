@@ -1,0 +1,62 @@
+{
+	"__site parameters object": "",
+  "SiteParameters": {
+    "Latitude": 52.80939865112305,
+    "Slope": 0,
+    "HeightNN": [0 , "m"],
+    "NDeposition": 30,
+		
+    "SoilProfileParameters": [
+			{
+				"Thickness": [0.15, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.64,
+				"Clay": 0.10,
+				"SoilBulkDensity": [1540, "kg m-3"],
+				"SoilOrganicCarbon": [0.43, "%"],
+				"pH": 7.62,
+				"Sceleton": 0.04
+			}, 
+			{
+				"Thickness": [0.13, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.63,
+				"Clay": 0.11,
+				"SoilBulkDensity": [1680, "kg m-3"],
+				"SoilOrganicCarbon": [0.35, "%"],
+				"pH": 7.63,
+				"Sceleton": 0.04
+			},
+			{
+				"Thickness": [0.55, "m"],
+				"KA5TextureClass": "Sl4",
+				"Sand": 0.62,
+				"Clay": 0.13,
+				"SoilBulkDensity": [1810, "kg m-3"],
+				"SoilOrganicCarbon": [0.06, "%"],
+				"pH": 7.71,
+				"Sceleton": 0.05
+			},
+			{
+				"Thickness": [1.17, "m"],
+				"KA5TextureClass": "Sl4",
+				"Sand": 0.62,
+				"Clay": 0.12,
+				"SoilBulkDensity": [1830, "kg m-3"],
+				"SoilOrganicCarbon": [0.02, "%"],
+				"pH": 7.74,
+				"Sceleton": 0.04
+			}
+    ]
+  },
+	
+  "SoilTemperatureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-temperature.json"],
+	"EnvironmentParameters": {
+    "DEFAULT": ["include-from-file", "monica-parameters/user-parameters/hermes-environment.json"],
+    "LeachingDepth": 2.0,
+    "WindSpeedHeight": 2.5
+  },
+  "SoilOrganicParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-organic.json"],
+  "SoilTransportParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-transport.json"],
+  "SoilMoistureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-moisture.json"]
+}

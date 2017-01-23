@@ -1,0 +1,88 @@
+{
+	"__site parameters object": "",
+  "SiteParameters": {
+    "Latitude": 52.80939865112305,
+    "Slope": 0,
+    "HeightNN": [0 , "m"],
+    "NDeposition": 30,
+		
+    "SoilProfileParameters": [
+			{
+				"Thickness": [0.31, "m"],
+				"KA5TextureClass": "Sl3",
+				"Sand": 0.58,
+				"Clay": 0.1,
+				"SoilRawDensity": [1770, "kg m-3"],
+				"SoilOrganicCarbon": [0.55, "%"],
+				"pH": 4.18,
+				"Sceleton": 0.08,
+				"PoreVolume": 0.33
+			}, 
+			{
+				"Thickness": [0.25, "m"],
+				"KA5TextureClass": "Su3",
+				"Sand": 0.55,
+				"Clay": 0.07,
+				"SoilRawDensity": [1890, "kg m-3"],
+				"SoilOrganicCarbon": [0.27, "%"],
+				"pH": 5.22,
+				"Sceleton": 0.058,
+				"PoreVolume": 0.283
+			},
+			{
+				"Thickness": [0.44, "m"],
+				"KA5TextureClass": "Sl2",
+				"Sand": 0.52,
+				"Clay": 0.15,
+				"SoilRawDensity": [1910, "kg m-3"],
+				"SoilOrganicCarbon": [0.23, "%"],
+				"pH": 6.15,
+				"Sceleton": 0.064,
+				"PoreVolume": 0.277
+			},
+			{
+				"Thickness": [0.50, "m"],
+				"KA5TextureClass": "Ls3",
+				"Sand": 0.5,
+				"Clay": 0.19,
+				"SoilRawDensity": [1750, "kg m-3"],
+				"SoilOrganicCarbon": [0.25, "%"],
+				"pH": 6.69,
+				"Sceleton": 0.039,
+				"PoreVolume": 0.337
+			},
+			{
+				"Thickness": [0.33, "m"],
+				"KA5TextureClass": "Ls3",
+				"Sand": 0.5,
+				"Clay": 0.19,
+				"SoilRawDensity": [1760, "kg m-3"],
+				"SoilOrganicCarbon": [0.24, "%"],
+				"pH": 6.73,
+				"Sceleton": 0.021,
+				"PoreVolume": 0.332
+			},
+			{
+				"Thickness": [0.17, "m"],
+				"KA5TextureClass": "Sl4",
+				"Sand": 0.57,
+				"Clay": 0.13,
+				"SoilRawDensity": [1850, "kg m-3"],
+				"SoilOrganicCarbon": [0.03, "%"],
+				"pH": 7.68,
+				"Sceleton": 0.059,
+				"PoreVolume": 0.301
+			}
+    ]
+  },
+	
+  "SoilTemperatureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-temperature.json"],
+	"EnvironmentParameters": {
+    "DEFAULT": ["include-from-file", "monica-parameters/user-parameters/hermes-environment.json"],
+    "LeachingDepth": 2.0,
+    "WindSpeedHeight": 2.5
+  },
+  "SoilOrganicParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-organic.json"],
+  "SoilTransportParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-transport.json"],
+  "SoilMoistureParameters": ["include-from-file", "monica-parameters/user-parameters/hermes-soil-moisture.json"]
+}
