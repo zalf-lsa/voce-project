@@ -12,7 +12,8 @@
 	},
 	
 	"debug?": false,
-	"include-file-base-path": "./",
+	"include-file-base-path": "C:/Users/berg.ZALF-AD/GitHub/",
+	"_ss": "./",
 	
 	"output": { 
 	  "write-file?": false,

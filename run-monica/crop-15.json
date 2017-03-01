@@ -1,16 +1,18 @@
   {
 	"crops": {
 		"SM": {
+			"is-winter-crop": false,
 			"cropParams": {
 				"species": ["include-from-file", "monica-parameters/crops/maize.json"],
-				"cultivar": ["include-from-file", "monica-parameters/crops/maize/silage maize.json"]
+				"cultivar": ["include-from-file", "monica-parameters/crops/maize/silage-maize.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/maize.json"]
 		},
 		"WW": {
+			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "monica-parameters/crops/wheat.json"],
-				"cultivar": ["include-from-file", "monica-parameters/crops/wheat/winter wheat.json"]
+				"cultivar": ["include-from-file", "monica-parameters/crops/wheat/winter-wheat.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/wheat.json"]
 		}
@@ -25,7 +27,7 @@
 		{
 			"worksteps": [
 				{ "date": "2014-10-07", "type": "Seed", "crop": ["ref", "crops", "WW"] },
-				{ "date": "2015-03-19", "type": "Harvest", "exported": false}
+				{ "date": "2015-03-19", "type": "Harvest", "exported": false }
 			]
 		},
 		{
@@ -42,7 +44,5 @@
 		}
 	],
 
-	"CropParameters": {
-		"DEFAULT": ["include-from-file", "monica-parameters/user-parameters/hermes-crop.json"]
-	}
+	"CropParameters": ["include-from-file", "monica-parameters/general/crop.json"]
 }

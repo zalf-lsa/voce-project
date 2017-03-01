@@ -1,16 +1,18 @@
   {
 	"crops": {
 		"winter-rape": {
+			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "monica-parameters/crops/rape.json"],
-				"cultivar": ["include-from-file", "monica-parameters/crops/rape/winter rape.json"]
+				"cultivar": ["include-from-file", "monica-parameters/crops/rape/winter-rape.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/rape.json"]
 		},
 		"WW": {
+			"is-winter-crop": true,
 			"cropParams": {
 				"species": ["include-from-file", "monica-parameters/crops/wheat.json"],
-				"cultivar": ["include-from-file", "monica-parameters/crops/wheat/winter wheat.json"]
+				"cultivar": ["include-from-file", "monica-parameters/crops/wheat/winter-wheat.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/wheat.json"]
 		}
@@ -67,7 +69,5 @@
 
 	],
 
-	"CropParameters": {
-		"DEFAULT": ["include-from-file", "monica-parameters/user-parameters/hermes-crop.json"]
-	}
+	"CropParameters": ["include-from-file", "monica-parameters/general/crop.json"]
 }
