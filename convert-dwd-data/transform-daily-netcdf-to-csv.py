@@ -34,7 +34,7 @@ print sys.path
 from netCDF4 import Dataset
 import numpy as np
 
-LOCAL_RUN = True
+LOCAL_RUN = False
 
 def main():
 
@@ -63,7 +63,14 @@ def main():
             print "year: ", year, " month: ", month, " ys -> ",
             data = {}
             for elem, filepath in elems.iteritems():
-                data[elem] = Dataset(filepath)
+                data[elem] = Dataset(filepath).variables[{
+                    "tmin": "temperature",
+                    "tavg": "temperature",
+                    "tmax": "temperature",
+                    "precip": "precipitation",
+                    "RH": "humidity",
+                    "SIS": "SIS",
+                    "FF": "FF"}[elem]].copy()
 
             ref_data = data["tavg"]
             no_of_days = len(ref_data.variables["time"])
@@ -87,13 +94,21 @@ def main():
                     for i in range(no_of_days):
                         row = [
                             date(year, month, i+1).strftime("%Y-%m-%d"),
-                            str(data["tmin"].variables["temperature"][i][y][x]),
-                            str(data["tavg"].variables["temperature"][i][y][x]),
-                            str(data["tmax"].variables["temperature"][i][y][x]),
-                            str(data["precip"].variables["precipitation"][i][y][x]),
-                            str(data["RH"].variables["humidity"][i][y][x]),
-                            str(round(data["SIS"].variables["SIS"][i][y][x] * 3600 / 1000000, 4)),
-                            str(data["FF"].variables["FF"][i][y][x])
+                            str(data["tmin"][i, y, x]),
+                            str(data["tavg"][i, y, x]),
+                            str(data["tmax"][i, y, x]),
+                            str(data["precip"][i, y, x]),
+                            str(data["RH"][i, y, x]),
+                            str(round(data["SIS"][i, y, x] * 3600 / 1000000, 4)),
+                            str(data["FF"][i, y, x])
+
+                            #str(data["tmin"].variables["temperature"][i][y][x]),
+                            #str(data["tavg"].variables["temperature"][i][y][x]),
+                            #str(data["tmax"].variables["temperature"][i][y][x]),
+                            #str(data["precip"].variables["precipitation"][i][y][x]),
+                            #str(data["RH"].variables["humidity"][i][y][x]),
+                            #str(round(data["SIS"].variables["SIS"][i][y][x] * 3600 / 1000000, 4)),
+                            #str(data["FF"].variables["FF"][i][y][x])
                         ]
                         cache[(y,x)].append(row)
                 
