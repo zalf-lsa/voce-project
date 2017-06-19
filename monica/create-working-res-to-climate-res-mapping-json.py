@@ -22,6 +22,9 @@ from collections import defaultdict, OrderedDict
 import itertools
 from pyproj import Proj, transform
 
+print sys.path
+sys.path.append("../../../python-site-packages/")
+
 USER = "xps15"
 LOCAL_RUN = True #False
 
