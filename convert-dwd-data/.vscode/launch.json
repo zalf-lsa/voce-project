@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "name": "Python",
+        "type": "python",
+        "request": "launch",
+        "stopOnEntry": false,
+        "pythonPath": "${config.python.pythonPath}",
+        "program": "${file}",
+        "cwd": "${workspaceRoot}",
+        "debugOptions": [
+            "WaitOnAbnormalExit",
+            "WaitOnNormalExit",
+            "RedirectOutput"
+        ]
+    },
+{
+    "name": "Integrated Terminal/Console",
+    "type": "python",
+    "request": "launch",
+    "stopOnEntry": false,
+    "pythonPath": "${config.python.pythonPath}",
+    "program": "${file}",
+    "cwd": "null",
+    "console": "integratedTerminal",
+    "debugOptions": [
+        "WaitOnAbnormalExit",
+        "WaitOnNormalExit"
+    ]
+}
+        
+    ]
+}
