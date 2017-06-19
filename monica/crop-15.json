@@ -3,7 +3,7 @@
 		"SM": {
 			"is-winter-crop": false,
 			"cropParams": {
-				"species": ["include-from-file", "monica-parameters/crops/maize.json"],
+				"species": ["include-from-file", "monica-parameters/projects/fnr-voce/maize.json"],
 				"cultivar": ["include-from-file", "monica-parameters/crops/maize/silage-maize.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/maize.json"]
@@ -11,7 +11,7 @@
 		"WW": {
 			"is-winter-crop": true,
 			"cropParams": {
-				"species": ["include-from-file", "monica-parameters/crops/wheat.json"],
+				"species": ["include-from-file", "monica-parameters/projects/fnr-voce/wheat.json"],
 				"cultivar": ["include-from-file", "monica-parameters/crops/wheat/winter-wheat.json"]
 			},
 			"residueParams": ["include-from-file", "monica-parameters/crop-residues/wheat.json"]

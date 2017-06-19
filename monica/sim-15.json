@@ -25,7 +25,7 @@
 			"csv-separator": ","
 		},
 
-		"events": [
+		"_events": [
 			"daily", ["Date", "Crop", "Yield"],
 
 			"2015-07-03", ["Date", "Stage", "AbBiom", "LAI"],
@@ -33,6 +33,22 @@
 			"2015-08-11", ["Date", "Stage", "AbBiom", "LAI", ["OrgBiom", "Shoot"], ["OrgBiom", "Leaf"]],
 
 			"2015-09-14", ["Date", "Stage", "AbBiom", "LAI", ["OrgBiom", "Shoot"], ["OrgBiom", "Leaf"], ["OrgBiom", "Fruit"], "Yield"]
+		],
+		"events": [
+			"daily", [
+				"Date",
+				"Crop",
+				"Stage",
+				"Tavg",
+				"Precip",
+				["Mois", 1],
+				"RootDep",
+				"Recharge",
+				"guenther-isoprene-emission|G-Iso",
+				"guenther-monoterpene-emission|G-Mono",
+				"jjv-isoprene-emission|JJV-Iso",
+				"jjv-monoterpene-emission|JJV-Mono"
+			]
 		]
 	},
 
