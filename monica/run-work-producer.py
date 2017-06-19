@@ -141,7 +141,7 @@ def main():
     germany_dwd_nodata = read_ascii_grid_into_numpy_array(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-data-no-data.grid", 2, \
         lambda s: 0 if s == "-" else 1)
 
-
+    
 
     def update_soil(soil_res, row, col, crop_id):
         "update function"
