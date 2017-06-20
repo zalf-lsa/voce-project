@@ -21,6 +21,8 @@ import time
 from collections import defaultdict, OrderedDict
 import itertools
 from pyproj import Proj, transform
+import numpy as np
+from scipy.interpolate import NearestNDInterpolator
 
 sys.path.insert(0, "/media/data2/data1/berg/development/python-site-packages")
 print sys.path
@@ -76,6 +78,34 @@ def main():
                         continue
                     slat, slon = col_str.split("|")
                     d[int(float(slat)*10000)][int(float(slon)*10000)] = (row, col)
+
+            return d
+
+    def read_ascii_grid_into_array(path_to_file, wgs84, gk5):
+        "read an ascii grid into a map, without the no-data values"
+        with open(path_to_file) as file_:
+            # skip headerlines
+            file_.next()
+            file_.next()
+            
+            nrows = 720
+            ncols = 938
+
+            arr = np.full([nrows, ncols], -9999, np.int32)
+            row = -1
+            d = defaultdict(dict)
+            for line in file_:
+                row += 1
+                col = -1
+                for col_str in line.strip().split(" "):
+                    col += 1
+                    if col_str == "-9999":
+                        continue
+                    clat, clon = col_str.split("|")
+                    #d[int(float(slat)*10000)][int(float(slon)*10000)] = (row, col)
+
+                    r, h = transform(wgs84, gk5, clon, clat)
+                    arr[row, col] = h * 10000000 + r
 
             return d
 
@@ -138,6 +168,32 @@ def main():
     #r, h = transform(wgs84, gk3, 9.426352, 50.359663)
     #lon, lat = transform(gk3, wgs84, r, h)
 
+    points = np.array([ncols*nrows])
+    values = np.array([ncols*nrows])
+
+    i = 0
+    for row in range(0, nrows):
+        for col in range(0, ncols):
+            h = yll + (cellsize / 2) + (nrows - y) * cellsize
+            r = xll + (cellsize / 2) + x * cellsize
+            points[i] = [h, r]
+            values[i] = 10000 * row + col
+
+    climate_arr = read_ascii_grid_into_array(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-lat-lon-coordinates.grid", wgs84, gk5)
+
+    interpol = NearestNDInterpolator(points, values)
+
+    crows = 720
+    ccols = 938
+    for crow in xrange(0, crows):
+        for ccol in xrange(0, ccols):
+            val = climate_arr[crow, ccol]
+            h = int(val / 10000000)
+            r = val - (h * 10000000)
+            print interpol(h, r)
+
+    return
+
     to_climate_row_col = []
 
     for y in range(config["start-row"]-1, config["end-row"]):
@@ -145,6 +201,10 @@ def main():
         start = time.clock()
 
         for x in range(0, ncols):
+
+            print x, 
+            if x == 134:
+                print "bla"
 
             h = yll + (cellsize / 2) + (nrows - y) * cellsize
             r = xll + (cellsize / 2) + x * cellsize
