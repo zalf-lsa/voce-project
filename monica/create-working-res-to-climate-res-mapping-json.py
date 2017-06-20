@@ -22,8 +22,8 @@ from collections import defaultdict, OrderedDict
 import itertools
 from pyproj import Proj, transform
 
+sys.path.insert(0, "/media/data2/data1/berg/development/python-site-packages")
 print sys.path
-sys.path.append("../../../python-site-packages/")
 
 USER = "xps15"
 LOCAL_RUN = True #False
@@ -36,7 +36,7 @@ PATHS = {
 
     "cluster2": {
         "PATH_TO_SOIL_DIR": "/archiv-daten/md/data/soil/buek1000/ddr/",
-        "PATH_TO_CLIMATE_CSVS_DIR": " /archiv-daten/md/data/climate/dwd/csvs/"
+        "PATH_TO_CLIMATE_CSVS_DIR": "/archiv-daten/md/data/climate/dwd/csvs/"
     }
 }
 
@@ -53,6 +53,8 @@ def main():
             k,v = arg.split("=")
             if k in config:
                 config[k] = v if k == "user" else int(v)  
+
+    USER = config["user"]
 
     def read_ascii_grid_into_dict(path_to_file):
         "read an ascii grid into a map, without the no-data values"
@@ -159,15 +161,31 @@ def main():
 
         print "row[", config["start-row"], "-", config["end-row"], "]", y, "(", stop - start, "s)",
 
-    with open("working_resolution_to_climate_row-" + config["start-row"] + "-to-row-" + config["end-row"] + "_col.json", "w") as _:
+    with open("out/working_resolution_to_climate_row-" + str(config["start-row"]) + "-to-row-" + str(config["end-row"]) + "_col.json", "w") as _:
         _.write(json.dumps(to_climate_row_col))
+
+def merge_splitted_mappings():
+
+    to_climate_row_col = {}
+
+    step = 25
+    for row in xrange(0, 5001, step):
+        with(open("out/working_resolution_to_climate_row-" + str(row) + "-to-row-" + str(row + step) + "_col.json")) as _:
+            l = json.load(_)
+            for i in xrange(0, len(l), 2):
+                to_climate_row_col[tuple(l[i])] = tuple(l[i+1])
+
+    with open("working_resolution_to_climate_row_col.json", "w") as _:
+        _.write(json.dumps(to_climate_row_col))
+
+    print "bla"
 
 
 def load_mapping():
 
     to_climate_row_col = {}
 
-    with(open("working_resolution_to_climate_row_col.json")) as _:
+    with(open("out/working_resolution_to_climate_row_col.json")) as _:
         l = json.load(_)
         for i in xrange(0, len(l), 2):
             to_climate_row_col[tuple(l[i])] = tuple(l[i+1])

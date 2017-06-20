@@ -26,14 +26,7 @@ from datetime import date, datetime, timedelta
 from collections import defaultdict
 #import types
 import sys
-#sys.path.insert(0, "C:\\Users\\berg.ZALF-AD\\GitHub\\monica\\project-files\\Win32\\Release")
-#sys.path.insert(0, "C:\\Users\\berg.ZALF-AD\\GitHub\\monica\\project-files\\Win32\\Debug")
-#sys.path.insert(0, "C:\\Users\\berg.ZALF-AD\\GitHub\\monica\\src\\python")
-#sys.path.insert(0, "C:\\Program Files (x86)\\MONICA")
-print sys.path
-#sys.path.append('C:/Users/berg.ZALF-AD/GitHub/util/soil')
-#from soil_conversion import *
-#import monica_python
+#print sys.path
 import zmq
 print "pyzmq version: ", zmq.pyzmq_version(), " zmq version: ", zmq.zmq_version()
 
@@ -52,15 +45,9 @@ USER = "xps15"
 LOCAL_RUN = True #False
 
 PATHS = {
-    "lc": {
-        "INCLUDE_FILE_BASE_PATH": "C:/Users/berg.ZALF-AD.000/Documents/GitHub",
-        "LOCAL_ARCHIVE_PATH_TO_PROJECT": "P:/macsur-scaling-cc-nrw/",
-        "ARCHIVE_PATH_TO_PROJECT": "/archiv-daten/md/projects/macsur-scaling-cc-nrw/"
-    },
     "xps15": {
         "INCLUDE_FILE_BASE_PATH": "C:/Users/berg.ZALF-AD/GitHub",
-        "LOCAL_ARCHIVE_PATH_TO_PROJECT": "P:/macsur-scaling-cc-nrw/",
-        "ARCHIVE_PATH_TO_PROJECT": "/archiv-daten/md/projects/macsur-scaling-cc-nrw/",
+        "ARCHIVE_PATH_TO_CLIMATE_CSVS_DIR": "/archiv-daten/md/data/climate/dwd/csvs/",
         "PATH_TO_SOIL_DIR": "D:/soil/buek1000/ddr/",
         "PATH_TO_CLIMATE_CSVS_DIR": "D:/climate/dwd/csvs/"
     }
@@ -141,7 +128,20 @@ def main():
     germany_dwd_nodata = read_ascii_grid_into_numpy_array(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-data-no-data.grid", 2, \
         lambda s: 0 if s == "-" else 1)
 
-    
+
+    def load_mapping():
+        ""
+        to_climate_row_col = {}
+
+        with(open("out/working_resolution_to_climate_row_col.json")) as _:
+            l = json.load(_)
+            for i in xrange(0, len(l), 2):
+                to_climate_row_col[tuple(l[i])] = tuple(l[i+1])    
+        
+        return to_climate_row_col
+        
+    soil_to_climate = load_mapping()
+
 
     def update_soil(soil_res, row, col, crop_id):
         "update function"
@@ -153,108 +153,52 @@ def main():
         #print site["SiteParameters"]["SoilProfileParameters"]
 
 
+    soil_profiles = {}
+    envs = {}
+
+    start = time.clock()
     i = 1
-    start_store = time.clock()
-    #start = config["start"] - 1
-    #end = config["end"] - 1
-    #row_cols_ = row_cols[start:end+1]
-    #print "running from ", start, "/", row_cols[start], " to ", end, "/", row_cols[end]
+    srows, scols = soil_ids.shape()
+    for srow in xrange(0, srows):
 
-    for c2s in climate_to_soil:
+        for scol in xrange(0, scols):
 
-        step = c2s["step"]
-        climate_resolution = c2s["climate"]
-        soil_resolution = c2s["soil"]
+            soil_id = soil_ids[srow, scol]
 
-        climate_to_soils = defaultdict(set)
-        for mmm in lookup:
-            climate_to_soils[mmm[climate_resolution]].add(mmm[soil_resolution])
+            if soil_id not in soil_profiles:
+                soil_profiles[soil_id] = soil_io.soil_parameters(soil_db_con, soil_id)
+                envs[soil_id] = monica_io.create_env_json_from_json_config({
+                    "crop": crop,
+                    "site": site,
+                    "sim": sim,
+                    "climate": ""
+                })
+                envs[soil_id]["params"]["SiteParameters"]["SoilProfileParameters"] = soil_profiles[soil_id]
+                envs[soil_id]["csvViaHeaderOptions"] = sim["climate.csv-options"]
+            
+            env = envs[soil_id]
 
-        print "step: ", step, " ", sum([len(s[1]) for s in climate_to_soils.iteritems()]), " runs in climate_res: ", climate_resolution, " and soil_res: ", soil_resolution
+            crow, ccol = soil_to_climate[(srow, scol)]
 
-        for (climate_row, climate_col), soil_coords in climate_to_soils.iteritems():
-
-            #if (climate_row, climate_col) != (6,6):
-            #    continue
-
-            for soil_row, soil_col in soil_coords:
-
-                #if (soil_row, soil_col) != (11,11):
-                #    continue
-
-                for crop_id in ["W", "M"]:
-                    rootdepth_soillimited = update_soil(soil_resolution, soil_row, soil_col, crop_id)
-                    env = monica_io.create_env_json_from_json_config({
-                        "crop": crop,
-                        "site": site,
-                        "sim": sim,
-                        "climate": ""
-                    })
-
-                    env["csvViaHeaderOptions"] = sim["climate.csv-options"]
-                    env["events"] = sims["output"][crop_id]
-                    for workstep in env["cropRotation"][0]["worksteps"]:
-                        if workstep["type"] == "Seed":
-                            current_rootdepth = float(workstep["crop"]["cropParams"]["cultivar"]["CropSpecificMaxRootingDepth"])
-                            workstep["crop"]["cropParams"]["cultivar"]["CropSpecificMaxRootingDepth"] = min(current_rootdepth, rootdepth_soillimited)
-                            break
-                    
-                    for production_id, switches in production_situations.iteritems():
-
-                        env["params"]["simulationParameters"]["WaterDeficitResponseOn"] = switches["water-response"]
-                        env["params"]["simulationParameters"]["NitrogenResponseOn"] = switches["nitrogen-response"]
-
-                        for period_gcm in period_gcms:
-
-                            grcp = period_gcm["grcp"]
-                            period = period_gcm["period"]
-                            gcm = period_gcm["gcm-rcp"]
-
-                            #if period != "0":
-                            #    continue
-                            #if climate_resolution != 50:
-                            #    continue
-                            #if soil_resolution != 25:
-                            #    continue
-                            #if crop_id != "W":
-                            #    continue
-
-                            if period != "0":
-                                climate_filename = "daily_mean_P{}_GRCP_{}_RES{}_C0{}R{}.csv".format(period, grcp, climate_resolution, climate_col, climate_row)
-                            else:
-                                climate_filename = "daily_mean_P{}_RES{}_C0{}R{}.csv".format(period, climate_resolution, climate_col, climate_row)
-                                
-                            if LOCAL_RUN:
-                                env["pathToClimateCSV"] = PATHS[USER]["LOCAL_ARCHIVE_PATH_TO_PROJECT"] + "Climate_data/NRW_weather_climate_change_v3/res_" + str(climate_resolution) + "/period_" + period + "/GRCP_" + grcp + "/" + climate_filename
-                            else:
-                                env["pathToClimateCSV"] = PATHS[USER]["ARCHIVE_PATH_TO_PROJECT"] + "Climate_data/NRW_weather_climate_change_v3/res_" + str(climate_resolution) + "/period_" + period + "/GRCP_" + grcp + "/" + climate_filename
-
-                            #initialize nitrate/ammonium in soil layers at start of simulation 
-                            #for i in range(3):
-                            #    env["cropRotation"][0]["worksteps"][i]["date"] = start_year[period] + "-01-01"
-
-                            env["customId"] = crop_id \
-                                                + "|" + str(climate_resolution) \
-                                                + "|(" + str(climate_row) + "/" + str(climate_col) + ")" \
-                                                + "|" + str(soil_resolution) \
-                                                + "|(" + str(soil_row) + "/" + str(soil_col) + ")" \
-                                                + "|" + period \
-                                                + "|" + grcp \
-                                                + "|" + gcm \
-                                                + "|" + production_id
-
-                            #with open("envs/env-"+str(i)+".json", "w") as _:
-                            #    _.write(json.dumps(env))
-
-                            socket.send_json(env)
-                            print "sent env ", i, " customId: ", env["customId"]
-                            #exit()
-                            i += 1
+            if LOCAL_RUN:
+                env["pathToClimateCSV"] = PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-" + str(crow) + "/col-" + str(ccol) + ".csv"
+            else:
+                env["pathToClimateCSV"] = PATHS[USER]["ARCHIVE_PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-" + str(crow) + "/col-" + str(ccol) + ".csv"
 
 
-    stop_store = time.clock()
+            env["customId"] = "(" + str(crow) + "/" + str(ccol) + ")" \
+                            + "|(" + str(srow) + "/" + str(scol) + ")"
 
-    print "sending ", (i-1), " envs took ", (stop_store - start_store), " seconds"
+            #with open("envs/env-"+str(i)+".json", "w") as _:
+            #    _.write(json.dumps(env))
+
+            socket.send_json(env)
+            print "sent env ", i, " customId: ", env["customId"]
+            #exit()
+            i += 1
+
+    stop = time.clock()
+    print "sending ", (i-1), " envs took ", (stop - start), " seconds"
     #print "ran from ", start, "/", row_cols[start], " to ", end, "/", row_cols[end]
     return
 
