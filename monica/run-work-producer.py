@@ -39,12 +39,13 @@ import monica_io
 #print "path to monica_io: ", monica_io.__file__
 import soil_io
 import ascii_io
+import ascii_np_io
 
 #print "sys.path: ", sys.path
 #print "sys.version: ", sys.version
 
 USER = "xps15"
-LOCAL_RUN = True #False
+LOCAL_RUN = False
 
 PATHS = {
     "xps15": {
@@ -62,7 +63,7 @@ def main():
     socket = context.socket(zmq.PUSH)
     #port = 6666 if len(sys.argv) == 1 else sys.argv[1]
     config = {
-        "port": 6666,
+        "port": 16666,
         "start": 1,
         "end": 8157
     }
@@ -75,7 +76,7 @@ def main():
     soil_db_con = sqlite3.connect(PATHS[USER]["PATH_TO_SOIL_DIR"] + "soil.sqlite")
 
     if LOCAL_RUN:
-        socket.connect("tcp://localhost:" + str(config["port"]))
+        socket.connect("tcp://localhost:6666") # + str(config["port"]))
     else:
         socket.connect("tcp://cluster2:" + str(config["port"]))
 
@@ -89,47 +90,6 @@ def main():
         crop = json.load(_)
 
     #sim["include-file-base-path"] = PATHS[USER]["INCLUDE_FILE_BASE_PATH"]
-
-    def read_ascii_grid_into_numpy_array(path_to_file, no_of_headerlines=6, extract_fn=lambda s: int(s), np_dtype=np.int32, nodata_value=-9999):
-        "read an ascii grid into a map, without the no-data values"
-        with open(path_to_file) as file_:
-            nrows = 0
-            ncols = 0
-            row = -1
-            arr = None
-            skip_count = 0
-            for line in file_:
-                if skip_count < no_of_headerlines:
-                    skip_count += 1
-                    sline = filter(lambda s: len(s.strip()) > 0, line.split(" "))
-                    if len(sline) > 1:
-                        key = sline[0].strip().upper()
-                        if key == "NCOLS":
-                            ncols = int(sline[1].strip())
-                        elif key == "NROWS":
-                            nrows = int(sline[1].strip())
-                    continue
-
-                if skip_count == no_of_headerlines:
-                    arr = np.full((nrows, ncols), nodata_value, dtype=np_dtype)
-
-                row += 1
-                col = -1
-                for col_str in line.strip().split(" "):
-                    col += 1
-                    if int(col_str) == -9999:
-                        continue
-                    arr[row, col] = extract_fn(col_str)
-
-            return arr
-
-    soil_ids = read_ascii_grid_into_numpy_array(PATHS[USER]["PATH_TO_SOIL_DIR"] + "buek1000_100_gk5.asc")
-
-    #germany_dwd_lats = read_ascii_grid_into_numpy_array(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-lat-lon-coordinates.grid", 2, \
-    #    lambda s: float(s.split("|")[0]), np_dtype=np.float)
-
-    #germany_dwd_nodata = read_ascii_grid_into_numpy_array(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-data-no-data.grid", 2, \
-    #    lambda s: 0 if s == "-" else 1)
 
     crows = 938
     ccols = 720
@@ -185,21 +145,19 @@ def main():
     start = time.clock()
     i = 1
     srow = -1
-    with open(PATHS[USER]["PATH_TO_SOIL_DIR"] + "buek1000_100_gk5.asc") as file_:
-        skip_count = 0
-        for line in file_:
-            for i in range(0, 6):
-                _.next()
+    with open(PATHS[USER]["PATH_TO_SOIL_DIR"] + "buek1000_100_gk5.asc") as _:
+        for i in range(0, 6):
+            _.next()
 
+        for line in _:
             srow += 1
             scol = -1
             for col_str in line.strip().split(" "):
-                col += 1
-                if int(col_str) == -9999:
-                    continue
+                scol += 1
 
                 soil_id = int(col_str)
-
+                if soil_id == -9999:
+                    continue
                 if soil_id not in envs:
                     site["SiteParameters"]["SoilProfileParameters"] = soil_io.soil_parameters(soil_db_con, soil_id)
                     envs[soil_id] = monica_io.create_env_json_from_json_config({
@@ -217,14 +175,17 @@ def main():
                 inter = interpol(sh, sr)
                 crow = int(inter / 1000)
                 ccol = inter - (crow * 1000)
-                clat, clon = cdict[(crow, ccol)]
-                slon, slat = transform(gk5, wgs84, r, h)
+                #clat, clon = cdict[(crow, ccol)]
+                #slon, slat = transform(gk5, wgs84, r, h)
                 #print "srow:", srow, "scol:", scol, "h:", sh, "r:", sr, " inter:", inter, "crow:", crow, "ccol:", ccol, "slat:", slat, "slon:", slon, "clat:", clat, "clon:", clon
 
                 if LOCAL_RUN:
                     env["pathToClimateCSV"] = PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-" + str(crow) + "/col-" + str(ccol) + ".csv"
+                    env["pathToClimateCSV"] = PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-851/col-543.csv"
                 else:
                     env["pathToClimateCSV"] = PATHS[USER]["ARCHIVE_PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-" + str(crow) + "/col-" + str(ccol) + ".csv"
+                    env["pathToClimateCSV"] = PATHS[USER]["ARCHIVE_PATH_TO_CLIMATE_CSVS_DIR"] + "germany/row-851/col-543.csv"
+                #print env["pathToClimateCSV"]
 
                 env["customId"] = "(" + str(crow) + "/" + str(ccol) + ")" \
                                 + "|(" + str(srow) + "/" + str(scol) + ")"
@@ -232,9 +193,10 @@ def main():
                 #with open("envs/env-"+str(i)+".json", "w") as _:
                 #    _.write(json.dumps(env))
 
-                #socket.send_json(env)
+                socket.send_json(env)
                 print "sent env ", i, " customId: ", env["customId"]
-                #exit()
+                #if i > 100:
+                #    exit()
                 i += 1
 
     stop = time.clock()
