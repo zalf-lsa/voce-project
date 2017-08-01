@@ -5,7 +5,9 @@
     "HeightNN": [0 , "m"],
     "NDeposition": 30,
 		
-    "SoilProfileParameters": [
+		"SoilProfileParameters": ["include-from-db", "soil-profile", 1],
+
+    "_SoilProfileParameters": [
 			{
 				"Thickness": [0.35, "m"],
 				"KA5TextureClass": "Sl3",
