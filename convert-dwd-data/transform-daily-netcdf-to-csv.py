@@ -42,18 +42,18 @@ def main():
         "path_to_data": "m:/data/climate/dwd/grids/germany/daily/" if LOCAL_RUN else "/archiv-daten/md/data/climate/dwd/grids/germany/daily/",
         #"path_to_output": "m:/data/climate/dwd/csvs/germany/" if LOCAL_RUN else "/archiv-daten/md/data/climate/dwd/csvs/germany/",
         "path_to_output": "g:/csvs/germany/" if LOCAL_RUN else "/archiv-daten/md/data/climate/dwd/csvs/germany/",
-        "start-y": 1,
-        "end-y": -1,
-        "start-year": 1995,
-        "start-month": 1,
-        "end-year": 2012,
-        "end-month": 12
+        "start-y": "1",
+        "end-y": "-1",
+        "start-year": "1995",
+        "start-month": "1",
+        "end-year": "2012",
+        "end-month": "12"
     }
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             kkk, vvv = arg.split("=")
             if kkk in config:
-                config[kkk] = int(vvv)
+                config[kkk] = vvv
 
     files = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
     for f in os.listdir(config["path_to_data"]):
@@ -100,16 +100,16 @@ def main():
 
     write_files_threshold = 50 #ys
     for year, months in files.iteritems():
-        if year < config["start-year"]:
+        if year < int(config["start-year"]):
             continue
-        if year > config["end-year"]:
+        if year > int(config["end-year"]):
             break
 
         #print "year: ", year, "months: ",
         for month, elems in months.iteritems():
-            if year == config["start-year"] and month < config["start-month"]:
+            if year == int(config["start-year"]) and month < int(config["start-month"]):
                 continue
-            if year == config["end-year"] and month > config["end-month"]:
+            if year == int(config["end-year"]) and month > int(config["end-month"]):
                 break
 
             print "year:", year, "month:", month, "ys ->",
@@ -126,7 +126,7 @@ def main():
             start_month = time.clock()
             cache = defaultdict(list)
 
-            for y in range(config["start-y"] - 1, ref_data.shape[1] if config["end-y"] < 0 else config["end-y"]):
+            for y in range(int(config["start-y"]) - 1, ref_data.shape[1] if int(config["end-y"]) < 0 else int(config["end-y"])):
                 #print "y: ", y, "->"
                 start_y = time.clock()
                 #print y,
@@ -163,7 +163,7 @@ def main():
                 end_y = time.clock()
                 print y, #str(y) + "|" + str(int(end_y - start_y)) + "s ",
                
-                if y > config["start-y"] and y % write_files_threshold == 0:
+                if y > int(config["start-y"]) and y % write_files_threshold == 0:
                     print ""
                     s = time.clock()
                     write_files(cache)
