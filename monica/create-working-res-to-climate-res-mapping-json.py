@@ -21,9 +21,11 @@ import time
 from collections import defaultdict, OrderedDict
 import itertools
 from pyproj import Proj, transform
+import numpy as np
+from scipy.interpolate import NearestNDInterpolator
 
+sys.path.insert(0, "/media/data2/data1/berg/development/python-site-packages")
 print sys.path
-sys.path.append("../../../python-site-packages/")
 
 USER = "xps15"
 LOCAL_RUN = True #False
@@ -36,7 +38,7 @@ PATHS = {
 
     "cluster2": {
         "PATH_TO_SOIL_DIR": "/archiv-daten/md/data/soil/buek1000/ddr/",
-        "PATH_TO_CLIMATE_CSVS_DIR": " /archiv-daten/md/data/climate/dwd/csvs/"
+        "PATH_TO_CLIMATE_CSVS_DIR": "/archiv-daten/md/data/climate/dwd/csvs/"
     }
 }
 
@@ -54,82 +56,55 @@ def main():
             if k in config:
                 config[k] = v if k == "user" else int(v)  
 
+<<<<<<< HEAD
     
 
     def read_ascii_grid_into_dict(path_to_file):
+=======
+    USER = config["user"]
+
+    cdict = {}
+    def create_interpolator(path_to_file, wgs84, gk5):
+>>>>>>> 78e1cdc4d5a9d96c91bc88c6336494f1923de5ac
         "read an ascii grid into a map, without the no-data values"
         with open(path_to_file) as file_:
             # skip headerlines
             file_.next()
             file_.next()
 
-            nrows = 720
-            ncols = 938
+            nrows = 938
+            ncols = 720
+
+            points = np.zeros((ccols*crows, 2), np.int32)
+            values = np.zeros((ccols*crows), np.int32)
+
+            i = -1
             row = -1
-            d = defaultdict(dict)
             for line in file_:
                 row += 1
                 col = -1
+
                 for col_str in line.strip().split(" "):
                     col += 1
-                    if col_str == "-9999":
-                        continue
-                    slat, slon = col_str.split("|")
-                    d[int(float(slat)*10000)][int(float(slon)*10000)] = (row, col)
+                    i += 1
+                    clat, clon = col_str.split("|")
+                    cdict[(row, col)] = (clat, clon)
+                    r, h = transform(wgs84, gk5, clon, clat)
+                    points[i, 0] = h
+                    points[i, 1] = r
+                    values[i] = 1000 * row + col
+                    #print "row:", row, "col:", col, "clat:", clat, "clon:", clon, "h:", h, "r:", r, "val:", values[i]
 
-            return d
+            return NearestNDInterpolator(points, values)
 
-
-    def find_closest_value(ord_dict, val, obey_borders=True):
-        "find the closest key to value val in ordered dict ord_dict"
-        if obey_borders:
-            vals = ord_dict.keys()
-            if val < vals[0] or vals[-1] < val:
-                return None
-
-        it1 = ord_dict.iterkeys()
-        it2 = ord_dict.iterkeys()
-        next(it2, None)
-
-        for (cur, nex) in itertools.izip_longest(it1, it2, fillvalue=None):
-            if cur and not nex:
-                return cur
-            elif cur <= val and nex and val <= nex:
-                cur_dist = val - cur
-                nex_dist = nex - val
-                return cur if cur_dist <= nex_dist else nex
-
-        return None
-
-
-    def find_closest_lat_lon(ord_dict, lat, lon):
-        "find the (row, col) of the closest lat/lon value in dictionary ord_dict"
-        closest_lat = find_closest_value(ord_dict, lat)
-        if closest_lat:
-
-            lons = ord_dict[closest_lat]
-            closest_lon = find_closest_value(lons, lon)
-            if closest_lon:
-                return lons[closest_lon]
-
-        return (None, None)
-
-
-    isimip_ord_lat_lon = OrderedDict()
-    isimip_lat_lon_unsorted = read_ascii_grid_into_dict(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-lat-lon-coordinates.grid")
-    for lat in sorted(isimip_lat_lon_unsorted.keys()):
-        isimip_ord_lat_lon[lat] = OrderedDict()
-        ulons = isimip_lat_lon_unsorted[lat]
-        lons = isimip_ord_lat_lon[lat]
-        for lon in sorted(ulons.keys()):
-            lons[lon] = isimip_lat_lon_unsorted[lat][lon]
-
+    crows = 938
+    ccols = 720
 
     xll = 5137800
     yll = 5562800
     cellsize = 100
-    ncols = 3653
-    nrows = 5001
+    scols = 3653
+    srows = 5001
 
     wgs84 = Proj(init="epsg:4326")
     #gk3 = Proj(init="epsg:31467")
@@ -138,38 +113,44 @@ def main():
     #r, h = transform(wgs84, gk3, 9.426352, 50.359663)
     #lon, lat = transform(gk3, wgs84, r, h)
 
-    to_climate_row_col = []
+    interpol = create_interpolator(PATHS[USER]["PATH_TO_CLIMATE_CSVS_DIR"] + "germany-lat-lon-coordinates.grid", wgs84, gk5)
 
-    for y in range(config["start-row"]-1, config["end-row"]):
+    for srow in range(0, srows):
+        for scol in range(0, scols):
+            h = yll + (cellsize / 2) + (srows - srow) * cellsize
+            r = xll + (cellsize / 2) + scol * cellsize
+            inter = interpol(h, r)
+            crow = int(inter / 1000)
+            ccol = inter - (crow * 1000)
+            clat, clon = cdict[(crow, ccol)]
+            slon, slat = transform(gk5, wgs84, r, h)
+            print "srow:", srow, "scol:", scol, "h:", h, "r:", r, " inter:", interpol(h, r), "crow:", crow, "ccol:", ccol, "slat:", slat, "slon:", slon, "clat:", clat, "clon:", clon
 
-        start = time.clock()
+    return
 
-        for x in range(0, ncols):
 
-            h = yll + (cellsize / 2) + (nrows - y) * cellsize
-            r = xll + (cellsize / 2) + x * cellsize
-            lon, lat = transform(gk5, wgs84, r, h)
+def merge_splitted_mappings():
 
-            crow, ccol = find_closest_lat_lon(isimip_ord_lat_lon, int(lat*10000), int(lon*10000))
+    to_climate_row_col = {}
 
-            to_climate_row_col.append((y, x))
-            to_climate_row_col.append((crow, ccol))
+    step = 25
+    for row in xrange(0, 5001, step):
+        with(open("out/working_resolution_to_climate_row-" + str(row) + "-to-row-" + str(row + step) + "_col.json")) as _:
+            l = json.load(_)
+            for i in xrange(0, len(l), 2):
+                to_climate_row_col[tuple(l[i])] = tuple(l[i+1])
 
-            #print x, " ",
-
-        stop = time.clock()
-
-        print "row[", config["start-row"], "-", config["end-row"], "]", y, "(", stop - start, "s)",
-
-    with open("working_resolution_to_climate_row-" + config["start-row"] + "-to-row-" + config["end-row"] + "_col.json", "w") as _:
+    with open("working_resolution_to_climate_row_col.json", "w") as _:
         _.write(json.dumps(to_climate_row_col))
+
+    print "bla"
 
 
 def load_mapping():
 
     to_climate_row_col = {}
 
-    with(open("working_resolution_to_climate_row_col.json")) as _:
+    with(open("out/working_resolution_to_climate_row_col.json")) as _:
         l = json.load(_)
         for i in xrange(0, len(l), 2):
             to_climate_row_col[tuple(l[i])] = tuple(l[i+1])
