@@ -56,16 +56,10 @@ def main():
             if k in config:
                 config[k] = v if k == "user" else int(v)  
 
-<<<<<<< HEAD
-    
-
-    def read_ascii_grid_into_dict(path_to_file):
-=======
     USER = config["user"]
 
     cdict = {}
     def create_interpolator(path_to_file, wgs84, gk5):
->>>>>>> 78e1cdc4d5a9d96c91bc88c6336494f1923de5ac
         "read an ascii grid into a map, without the no-data values"
         with open(path_to_file) as file_:
             # skip headerlines
