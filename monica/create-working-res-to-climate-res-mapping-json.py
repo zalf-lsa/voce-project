@@ -54,6 +54,8 @@ def main():
             if k in config:
                 config[k] = v if k == "user" else int(v)  
 
+    
+
     def read_ascii_grid_into_dict(path_to_file):
         "read an ascii grid into a map, without the no-data values"
         with open(path_to_file) as file_:

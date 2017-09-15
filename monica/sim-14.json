@@ -22,10 +22,56 @@
 		"csv-options": {
 			"include-header-row": true,
 			"include-units-row": true,
-			"csv-separator": ","
+			"csv-separator": ";"
 		},
 
 		"events": [
+			{"start": "2015-01-01", "end": "2016-12-31"}, [
+				"Date", 
+				"days-since-start",
+				"Crop",
+				"AbBiom",
+				"Yield",
+				["OrgBiom|LeafBiom", "Leaf"],
+				"guenther-isoprene-emission",
+				"guenther-monoterpene-emission",
+				"jjv-isoprene-emission",
+				"jjv-monoterpene-emission",
+				"Globrad",
+				"Tavg",
+				"Tmin",
+				"Tmax",
+				"LAI",
+				"ActNup",
+				"Precip",
+				"Tra"
+			]
+		],
+
+
+		"3 events": [
+			"daily", [
+				"Date", 
+				"Crop",
+				"AbBiom",
+				"Yield",
+				["OrgBiom|LeafBiom", "Leaf"],
+				"guenther-isoprene-emission",
+				"guenther-monoterpene-emission",
+				"jjv-isoprene-emission",
+				"jjv-monoterpene-emission",
+				"Globrad",
+				"Tavg",
+				"Tmin",
+				"Tmax",
+				"LAI",
+				"ActNup",
+				"Precip",
+				"Tra"
+			]
+		],
+
+		"2 events": [
 			"daily", ["Date", "Crop", "Stage", "AbBiom", "Yield"],
 
 			"2016-02-08", ["Date", "Stage", "AbBiom", ["OrgBiom", "Leaf"], ["OrgBiom", "Shoot"], ["OrgBiom", "Fruit"], ["OrgBiom", "Root"]],
