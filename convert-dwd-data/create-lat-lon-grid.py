@@ -34,30 +34,39 @@ print sys.path
 from netCDF4 import Dataset
 import numpy as np
 
+USER = "xps15"
+
+PATHS = {
+    "lc": {
+        "path_to_data": "d:/climate/dwd/grids/germany/daily/"    },
+    "xps15": {
+        "path_to_data": "d:/climate/dwd/grids/germany/daily/"
+    }
+}
+
 def main():
 
     config = {
-        "path_to_data": "m:/data/climate/dwd/grids/germany/daily/"
     }
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             kkk, vvv = arg.split("=")
             if kkk in config:
-                config[kkk] = int(vvv)
+                config[kkk] = vvv
 
-    ds = Dataset(config["path_to_data"] + "tavg_199501_daymean.nc")
+    ds = Dataset(PATHS[USER]["path_to_data"] + "tavg_199501_daymean.nc")
     lats = np.copy(ds.variables["lat"])
     lons = np.copy(ds.variables["lon"])
     temps = np.copy(ds.variables["temperature"][0])
 
-    if False:
+    if True: #False:
         with open("lat-lon.grid", "w") as _:
             _.write("NCOLS 720\n")
             _.write("NROWS 938\n")
             for y in range(0, 938):
                 line = []
                 for x in range(0, 720):
-                    line.append(str(round(lats[y, x], 4)) + "|" + str(round(lons[y, x], 4)))
+                    line.append(str(round(lats[937-y, x], 4)) + "|" + str(round(lons[937-y, x], 4)))
                 _.write(" ".join(line))
                 if y < 937:
                     _.write("\n")
@@ -71,7 +80,7 @@ def main():
             for y in range(0, 938):
                 line = []
                 for x in range(0, 720):
-                    line.append("-" if temps[y, x] == 9999 else "x")
+                    line.append("-" if temps[937-y, x] == 9999 else "x")
                 _.write(" ".join(line))
                 if y < 937:
                     _.write("\n")
