@@ -208,7 +208,7 @@ def main():
                             #str(data["precip"][i, y, x]),
                             str(regnie_np_grids[i][rrow, rcol] / 10.0),
                             str(data["RH"][i, y, x]),
-                            str(round(data["SIS"][i, y, x] * 3600 / 1000000, 4)),
+                            str(round(data["SIS"][i, y, x] * 60 * 60 * 24 / 1000000, 4)),
                             str(data["FF"][i, y, x])
 
                             #str(data["tmin"].variables["temperature"][i][y][x]),
