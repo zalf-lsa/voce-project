@@ -44,5 +44,8 @@
 		}
 	],
 
-	"CropParameters": ["include-from-file", "monica-parameters/general/crop.json"]
+	"CropParameters": {
+		"=": ["include-from-file", "monica-parameters/general/crop.json"],
+		"__enable_hourly_FvCB_photosynthesis__": true
+	}
 }
